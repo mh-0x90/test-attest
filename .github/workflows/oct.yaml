@@ -63,7 +63,7 @@ jobs:
 
           push: true
 
-          tags: ghcr.io/mh-0x90/my-image:6.0.0
+          tags: ghcr.io/mh-0x90/my-image:7.0.0
 
       - name: Attest build 
 
@@ -73,7 +73,7 @@ jobs:
 
         with:
 
-          subject-name: oci://ghcr.io/mh-0x90/my-image
+          subject-name: ghcr.io/mh-0x90/my-image
 
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
 
