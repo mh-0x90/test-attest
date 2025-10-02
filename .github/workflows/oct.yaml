@@ -1,0 +1,78 @@
+name: attestation oci
+ 
+on:
+
+  workflow_dispatch:
+ 
+ 
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Create a simple Dockerfile
+
+        run: |
+
+          echo "FROM alpine:latest" > Dockerfile
+
+      - name: Log in to JFrog Docker Registry
+
+        uses: docker/login-action@v3
+
+        env:
+
+          NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+
+        with:
+
+          registry: ghcr.io
+
+          username: ${{ github.actor }}
+
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Set lowercase repository name
+
+        id: repo-name
+
+        run: echo "::set-output name=lowercase_repo::$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+
+      - name: Set up Docker Buildx
+
+        id: buildx
+
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Docker Image
+
+        id: build-and-push
+
+        uses: docker/build-push-action@v6
+
+        with:
+
+          context: .
+
+          push: true
+
+          tags: ghcr.io/reza-hazhirpasand_vontobel/my-image:6.0.0
+
+      - name: Attest build 
+
+        id: attest
+
+        uses: actions/attest-build-provenance@v3
+
+        with:
+
+          subject-name: oci://ghcr.io/reza-hazhirpasand_vontobel/my-image:6.0.0
+
+          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+
+          push-to-registry: true
+
+ 
